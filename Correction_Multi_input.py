@@ -5,9 +5,6 @@ from tensorflow.keras import layers
 import tensorflow.keras.backend as K
 import numpy as np
 
-from Correction_UNet import cbam_block
-
-
 IMAGE_ORDERING_CHANNELS_LAST = "channels_last"
 IMAGE_ORDERING_CHANNELS_FIRST = "channels_first"
 
@@ -18,7 +15,6 @@ if IMAGE_ORDERING == 'channels_first':
 	MERGE_AXIS = 1
 elif IMAGE_ORDERING == 'channels_last':
 	MERGE_AXIS = -1
-
 
 # CBAM --------------------------------------------
 # Convolutional Block Attention Module(CBAM) block
@@ -223,6 +219,7 @@ def Correction_Multi_input(input_height, input_width):
 	model = Model(inputs=[img_input_1,img_input_2,img_input_3], outputs=pred_2)
 	#
 	return model
+
 
 if __name__ == '__main__':
 	m = Correction_Multi_input()
