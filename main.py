@@ -62,7 +62,6 @@ def ssim_loss(y_true, y_pred):
 	loss_ssim = 1.0 - K.mean(tf.image.ssim(y_true, y_pred, 255.0))
 	return loss_ssim
 
-
 def scheduler(epoch):
 	ep = 10
 	if epoch < ep:
@@ -73,7 +72,7 @@ def scheduler(epoch):
 def main():
 	print('Reading Data ... ')
 	train_data, train_label, valid_data, valid_label, test_data, test_label, fold2_train_before, fold3_valid_before, fold1_test_before, fold2_train_after, fold3_valid_after, fold1_test_after = read_data(train_data_path,train_GT_path,valid_data_path,valid_GT_path,test_data_path,test_GT_path)
-
+	#
 	print('---------------------------------')
 	print('Trainingdata=',train_data.shape)
 	print('Traininglabel=',train_label.shape)
@@ -82,12 +81,12 @@ def main():
 	print('test_data=',test_data.shape)
 	print('test_label=',test_label.shape)
 	print('---------------------------------')
-
+	#
 	if Train:
 		print('---------------------------------')
 		print('Model Training ...')
 		print('---------------------------------')
-
+		#
 		model = Correction_Multi_input(Height, Width)
 		print(model.summary())
 		csv_logger = CSVLogger(Weights_path+'Loss_Acc.csv', append=True, separator=' ')
@@ -103,7 +102,7 @@ def main():
 						callbacks=[csv_logger, reduce_lr])
 		print('Saving Model...')
 		save_model(Weights_path, model,'CorrectionUNet_') # to save the weight - 'CNN_iter_'+str(i)
-
+		#
 	if Test:
 		# Load the model
 		print('========================================Load Model-s Weights=====================================')
@@ -116,7 +115,7 @@ def main():
 		print('==================================')
 		print('Predictions=',pred.shape)
 		print('==================================')
-
+		#
 		# To save reconstructed data:
 		inps = sorted(glob.glob(os.path.join(test_data_path, "*.png")))
 		assert type(inps) is list
