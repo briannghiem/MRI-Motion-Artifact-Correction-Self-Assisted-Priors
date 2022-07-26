@@ -1,4 +1,3 @@
-
 import numpy as np
 from tensorflow.keras import backend as K
 import scipy.io
@@ -26,7 +25,8 @@ Height        = 218     # input image dimensions
 Width         = 170
 
 # PATHS:
-spath = r'/cluster/projects/uludag/Brian/data/cc/train_3D/corrupted/slices'
+mpath = r'/cluster/projects/uludag/Brian'
+spath = mpath + r'/data/cc/train_3D/corrupted/slices'
 # train_data_path  = '..path../Training/image/'
 # train_GT_path    = '..path../Training/label/'
 # valid_data_path  = '..path../validation/image/'
@@ -34,23 +34,23 @@ spath = r'/cluster/projects/uludag/Brian/data/cc/train_3D/corrupted/slices'
 # test_data_path   = '..path../Testing/image/'
 # test_GT_path     = '..path../Testing/label/'
 
-Prediction_path  = '..path../Predictions/'
-Weights_path     = '..path../Weights/'
+Prediction_path  = mpath + r'/RMC_repos/MRI-Motion-Artifact-Correction-Self-Assisted-Priors/outputs'
+Weights_path     = mpath + r'/RMC_repos/MRI-Motion-Artifact-Correction-Self-Assisted-Priors/weights'
 
 
 def save_model(path_weight, model,md = 'lstm'):
 	model_json = model.to_json()
-	with open(path_weight+"model_"+md+".json", "w") as json_file:
+	with open(path_weight+r"/model_"+md+".json", "w") as json_file:
 		json_file.write(model_json)
-	model.save_weights(path_weight+"model_"+md+".h5")
+	model.save_weights(path_weight+r"/model_"+md+".h5")
 	print("The model is successfully saved")
 
 def load_model(path_weight, md = 'lstm'):
-	json_file = open(path_weight+"model_"+md+".json", 'r')
+	json_file = open(path_weight+r"/model_"+md+".json", 'r')
 	loaded_model_json = json_file.read()
 	json_file.close()
 	loaded_model = model_from_json(loaded_model_json)
-	loaded_model.load_weights(path_weight+"model_"+md+".h5")
+	loaded_model.load_weights(path_weight+r"/model_"+md+".h5")
 	print("Loaded model from disk")
 	return loaded_model
 
@@ -69,7 +69,7 @@ def scheduler(epoch):
 		return learningRate
 	else:
 		return learningRate * math.exp(0.1 * (ep - epoch)) # lr decreases exponentially by a factor of 10
-	
+
 # -------------------------------------------------------
 def main():
 	print('Reading Data ... ')
@@ -83,15 +83,6 @@ def main():
 	valid_after = np.load(spath + r"/val/after_val.npy")
 	valid_label = np.load(spath + r"/val/current_val_GT.npy")
 	#
-	print('---------------------------------')
-	print('Trainingdata=',train_data.shape)
-	print('Traininglabel=',train_label.shape)
-	print('valid_data=',valid_data.shape)
-	print('valid_label=',valid_label.shape)
-	print('test_data=',test_data.shape)
-	print('test_label=',test_label.shape)
-	print('---------------------------------')
-	#
 	if Train:
 		print('---------------------------------')
 		print('Model Training ...')
@@ -99,7 +90,7 @@ def main():
 		#
 		model = Correction_Multi_input(Height, Width)
 		print(model.summary())
-		csv_logger = CSVLogger(Weights_path+'Loss_Acc.csv', append=True, separator=' ')
+		csv_logger = CSVLogger(Weights_path+r'/Loss_Acc.csv', append=True, separator=' ')
 		reduce_lr = LearningRateScheduler(scheduler)
 		model.compile(loss=ssim_loss, optimizer=optimizer, metrics=[ssim_score,'mse'])
 		hist = model.fit(x = [train_before, train_data, train_after],  # train_CE
