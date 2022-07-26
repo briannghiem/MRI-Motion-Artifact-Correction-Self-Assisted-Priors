@@ -88,12 +88,14 @@ pad_x = int((np.ceil(label_dat.shape[1]/32) * 32 - label_dat.shape[1])/2)
 pad_y = int((np.ceil(label_dat.shape[2]/32) * 32 - label_dat.shape[2])/2)
 
 label_dat = pad_dat(label_dat, pad_x, pad_y)
+label_dat = label_dat[..., None] #Need to add 4th dimension
 np.save(spath + r"/label_data.npy", label_dat) #4 GB if single precision
 
 #Loading simualted corrupted images (n = 80)
 corr_dat = xp.array([load_TrainDat(dpath+r"/train_dat{}.npy".format(i),'Train Data {}'.format(str(i))) for i in range(1,81)])
 corr_dat = vol2slice(corr_dat) #transform array of volumes to array of AXIAL slices
 corr_dat = pad_dat(corr_dat, pad_x, pad_y)
+corr_dat = corr_dat[..., None] #Need to add 4th dimension
 np.save(spath + r"/corr_data.npy", corr_dat) #4 GB if single precision
 
 
@@ -150,9 +152,3 @@ del label_current
 np.save(spath + r"/train/current_train_GT.npy", GT_train_current)
 np.save(spath + r"/val/current_val_GT.npy", GT_val_current)
 del GT_train_current, GT_val_current
-
-
-train_current = np.load(spath + r"/val/current_val_GT.npy")
-train_current = pad_dat(train_current, pad_x, pad_y)
-np.save(spath + r"/val/current_val_GT.npy", train_current)
-del train_current
