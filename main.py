@@ -21,22 +21,15 @@ nb_epoch      = 50
 learningRate  = 0.001 # 0.001
 optimizer     = Adam(learning_rate=learningRate)
 batch_size    = 10
-Height        = 218     # input image dimensions
-Width         = 170
+Height        = 224     # input image dimensions
+Width         = 192
 
 # PATHS:
 mpath = r'/cluster/projects/uludag/Brian'
 spath = mpath + r'/data/cc/train_3D/corrupted/slices'
-# train_data_path  = '..path../Training/image/'
-# train_GT_path    = '..path../Training/label/'
-# valid_data_path  = '..path../validation/image/'
-# valid_GT_path    = '..path../validation/label/'
-# test_data_path   = '..path../Testing/image/'
-# test_GT_path     = '..path../Testing/label/'
 
 Prediction_path  = mpath + r'/RMC_repos/MRI-Motion-Artifact-Correction-Self-Assisted-Priors/outputs'
 Weights_path     = mpath + r'/RMC_repos/MRI-Motion-Artifact-Correction-Self-Assisted-Priors/weights'
-
 
 def save_model(path_weight, model,md = 'lstm'):
 	model_json = model.to_json()
