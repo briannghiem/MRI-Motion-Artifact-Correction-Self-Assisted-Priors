@@ -16,22 +16,23 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'#'0,1,2,3,4,5,6,7'
 
 # -------------------------------------------------------
 Train = 1 # True False
-Test  = 1 # True False
+Test  = 0 # True False
 # -------------------------------------------------------
 nb_epoch      = 50
 learningRate  = 0.001 # 0.001
 optimizer     = Adam(learning_rate=learningRate)
 batch_size    = 10
-Height        = 256     # input image dimensions
-Width         = 256
+Height        = 218     # input image dimensions
+Width         = 170
 
-# PATHES:
-train_data_path  = '..path../Training/image/'
-train_GT_path    = '..path../Training/label/'
-valid_data_path  = '..path../validation/image/'
-valid_GT_path    = '..path../validation/label/'
-test_data_path   = '..path../Testing/image/'
-test_GT_path     = '..path../Testing/label/'
+# PATHS:
+spath = r'/cluster/projects/uludag/Brian/data/cc/train_3D/corrupted/slices'
+# train_data_path  = '..path../Training/image/'
+# train_GT_path    = '..path../Training/label/'
+# valid_data_path  = '..path../validation/image/'
+# valid_GT_path    = '..path../validation/label/'
+# test_data_path   = '..path../Testing/image/'
+# test_GT_path     = '..path../Testing/label/'
 
 Prediction_path  = '..path../Predictions/'
 Weights_path     = '..path../Weights/'
@@ -68,10 +69,19 @@ def scheduler(epoch):
 		return learningRate
 	else:
 		return learningRate * math.exp(0.1 * (ep - epoch)) # lr decreases exponentially by a factor of 10
+	
 # -------------------------------------------------------
 def main():
 	print('Reading Data ... ')
-	train_data, train_label, valid_data, valid_label, test_data, test_label, fold2_train_before, fold3_valid_before, fold1_test_before, fold2_train_after, fold3_valid_after, fold1_test_after = read_data(train_data_path,train_GT_path,valid_data_path,valid_GT_path,test_data_path,test_GT_path)
+	train_data = np.load(spath + r"/train/current_train.npy")
+	train_before = np.load(spath + r"/train/before_train.npy")
+	train_after = np.load(spath + r"/train/after_train.npy")
+	train_label = np.load(spath + r"/train/current_train_GT.npy")
+	#
+	valid_data = np.load(spath + r"/val/current_val.npy")
+	valid_before = np.load(spath + r"/val/before_val.npy")
+	valid_after = np.load(spath + r"/val/after_val.npy")
+	valid_label = np.load(spath + r"/val/current_val_GT.npy")
 	#
 	print('---------------------------------')
 	print('Trainingdata=',train_data.shape)
@@ -92,20 +102,20 @@ def main():
 		csv_logger = CSVLogger(Weights_path+'Loss_Acc.csv', append=True, separator=' ')
 		reduce_lr = LearningRateScheduler(scheduler)
 		model.compile(loss=ssim_loss, optimizer=optimizer, metrics=[ssim_score,'mse'])
-		hist = model.fit(x = [fold2_train_before, train_data, fold2_train_after],  # train_CE
+		hist = model.fit(x = [train_before, train_data, train_after],  # train_CE
 						y = train_label,
 						batch_size = batch_size,
 						shuffle = True,#False,
 						epochs = nb_epoch, #100,
-						verbose = 1,          # Verbosity mode. 0 = silent, 1 = progress bar, 2 = one line per epoch
-						validation_data=([fold3_valid_before, valid_data, fold3_valid_after], valid_label),   # test_CE
+						verbose = 2,          # Verbosity mode. 0 = silent, 1 = progress bar, 2 = one line per epoch
+						validation_data=([valid_before, valid_data, valid_after], valid_label),   # test_CE
 						callbacks=[csv_logger, reduce_lr])
 		print('Saving Model...')
 		save_model(Weights_path, model,'CorrectionUNet_') # to save the weight - 'CNN_iter_'+str(i)
 		#
 	if Test:
 		# Load the model
-		print('========================================Load Model-s Weights=====================================')
+		print('========================================Load Model Weights=====================================')
 		model = load_model(Weights_path, 'CorrectionUNet_') # to load the weight
 		print('---------------------------------')
 		print('Evaluate Model on Testing Set ...')
