@@ -65,6 +65,10 @@ def split_dat(array, train_inds, val_inds):
     val_array = array[val_inds,...]
     return train_array, val_array
 
+def pad_dat(array, pad_x, pad_y):
+    array_pad = np.pad(array, ((0,0), (pad_x,pad_x), (pad_y,pad_y)))
+    return array_pad
+
 #-------------------------------------------------------------------------------
 #File paths
 mpath = r'/cluster/projects/uludag/Brian/data/cc/train_3D/original'
@@ -79,12 +83,18 @@ mask_store = [getMask(abs(np.load(mpath + r'/' + C_name))) for C_name in C_files
 label_dat = [load_GTDat(mpath+r'/'+m_name, 'GT Data {}'.format(str(i+1)))*mask_store[i] for i, m_name in enumerate(m_files)] #masked groundtruth image
 label_dat = np.repeat(np.array(label_dat), 20, axis = 0)
 label_dat = vol2slice(label_dat) #transform array of volumes to array of AXIAL slices
-np.save(spath + r"/label_data.npy", label_dat) #3.52 GB if single precision
+
+pad_x = int((np.ceil(label_dat.shape[1]/32) * 32 - label_dat.shape[1])/2)
+pad_y = int((np.ceil(label_dat.shape[2]/32) * 32 - label_dat.shape[2])/2)
+
+label_dat = pad_dat(label_dat, pad_x, pad_y)
+np.save(spath + r"/label_data.npy", label_dat) #4 GB if single precision
 
 #Loading simualted corrupted images (n = 80)
 corr_dat = xp.array([load_TrainDat(dpath+r"/train_dat{}.npy".format(i),'Train Data {}'.format(str(i))) for i in range(1,81)])
 corr_dat = vol2slice(corr_dat) #transform array of volumes to array of AXIAL slices
-np.save(spath + r"/corr_data.npy", corr_dat) #3.52 GB if single precision
+corr_dat = pad_dat(corr_dat, pad_x, pad_y)
+np.save(spath + r"/corr_data.npy", corr_dat) #4 GB if single precision
 
 
 #-------------------------------------------------------------------------------
@@ -98,9 +108,9 @@ corr_dat = np.load("corr_data.npy")
 corr_current = gen_AdjSlice(corr_dat, 'current')
 corr_after = gen_AdjSlice(corr_dat, 'after')
 corr_before = gen_AdjSlice(corr_dat, 'before')
-# np.save(spath + r"/corr_dat_current.npy", corr_current) #3.4 GB
-# np.save(spath + r"/corr_dat_after.npy", corr_after) #3.4 GB
-# np.save(spath + r"/corr_dat_before.npy", corr_before) #3.4 GB
+# np.save(spath + r"/corr_dat_current.npy", corr_current)
+# np.save(spath + r"/corr_dat_after.npy", corr_after)
+# np.save(spath + r"/corr_dat_before.npy", corr_before)
 del corr_dat
 
 #-------------------------------------------------------------------------------
@@ -117,8 +127,8 @@ np.save(spath + r"/val_inds.npy", val_inds)
 #----------------------------------
 train_current, val_current = split_dat(corr_current, train_inds, val_inds)
 del corr_current
-np.save(spath + r"/train/current_train.npy", train_current)
-np.save(spath + r"/val/current_val.npy", val_current)
+np.save(spath + r"/train/current_train.npy", train_current) #3.2 G
+np.save(spath + r"/val/current_val.npy", val_current) #0.8 G
 del train_current, val_current
 
 train_before, val_before = split_dat(corr_before, train_inds, val_inds)
@@ -140,3 +150,9 @@ del label_current
 np.save(spath + r"/train/current_train_GT.npy", GT_train_current)
 np.save(spath + r"/val/current_val_GT.npy", GT_val_current)
 del GT_train_current, GT_val_current
+
+
+train_current = np.load(spath + r"/val/current_val_GT.npy")
+train_current = pad_dat(train_current, pad_x, pad_y)
+np.save(spath + r"/val/current_val_GT.npy", train_current)
+del train_current
