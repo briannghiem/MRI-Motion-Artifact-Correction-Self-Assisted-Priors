@@ -23,6 +23,7 @@ optimizer     = Adam(learning_rate=learningRate)
 batch_size    = 10
 Height        = 224     # input image dimensions
 Width         = 192
+max_val       = 1.0
 
 # PATHS:
 mpath = r'/cluster/projects/uludag/Brian'
@@ -48,12 +49,12 @@ def load_model(path_weight, md = 'lstm'):
 	return loaded_model
 
 def ssim_score(y_true, y_pred):
-	score = K.mean(tf.image.ssim(y_true, y_pred, 255.0))
+	score = K.mean(tf.image.ssim(y_true, y_pred, max_val))
 	return score
 
 def ssim_loss(y_true, y_pred):
 	#loss_ssim = 1.0 - K.mean((tf.image.ssim(y_true, y_pred, 255.0)+1.0)/2.0)## SSIM range is between -1~1 so --> +1/2 is added
-	loss_ssim = 1.0 - K.mean(tf.image.ssim(y_true, y_pred, 255.0))
+	loss_ssim = 1.0 - K.mean(tf.image.ssim(y_true, y_pred, max_val))
 	return loss_ssim
 
 def scheduler(epoch):
