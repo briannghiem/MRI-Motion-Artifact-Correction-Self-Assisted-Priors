@@ -16,4 +16,4 @@ cd ${HOME}
 
 conda activate /cluster/home/brian.nghiem/.conda/envs/tf_env
 
-python ${HOME}/main.py > ${HOME}/output_${SLURM_JOBID}.txt
+python ${HOME}/train.py > ${HOME}/output_${SLURM_JOBID}.txt
