@@ -234,10 +234,10 @@ Width         = 224
 max_val       = 1.0
 
 #Defining paths
-cnn_path = r'/cluster/projects/uludag/Brian/data/cc/train_3D/corrupted/PE1_AP/Complex/train_n240_interleaved_P1EF_2025-04-02'
-dpath = cnn_path + r'/P1CD/slices'
+root = os.getcwd()
+dpath = root + r'/data/P1CD/slices'
 nn_mode = 'complex_weighted'
-spath = cnn_path + r'/weights/P1CD'
+spath = root + r'/weights/P1CD'
 wpath = os.path.join(spath, nn_mode)
 plib.Path(wpath).mkdir(parents=True, exist_ok=True)
 
